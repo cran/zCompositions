@@ -7,7 +7,7 @@ Display Kaplan-Meier empirical cumulative distribution function and smoothing sp
 This function shows the empirical cumulative distribution function (ECDF) for left-censored data as estimated by the Kaplan-Meier (KM) method and a cubic smoothing spline fitted to it (KMSS method, see \code{\link{multKM}}).
 }
 \usage{
-splineKM(x, label = NULL, dl = NULL, n.knots = .nknots.smspl,
+splineKM(x, label = NULL, dl = NULL, n.knots = NULL,
             legend.pos = "bottomright",
             ylab = "ECDF", xlab = "Value",
             col.km = "black", lty.km = 1, lwd.km = 1,
@@ -24,8 +24,7 @@ Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote l
   \item{dl}{
 Numeric vector of detection limits/thresholds for each element of \code{x} (same length as \code{x}). These must be given on the same scale as \code{x} (use e.g. 0 for detected data). 
 }
-  \item{n.knots}{
-Integer or function giving the number of knots used for fitting a cubic smoothing spline to the KM ECDF (see \code{\link{smooth.spline}} for details).
+  \item{n.knots}{Integer or function giving the number of knots used for fitting a cubic smoothing spline to the KM ECDF (see \code{\link{smooth.spline}} for default value).
 }
   \item{legend.pos}{
 Location of the graph legend. Choose one amongst \code{"bottomleft"}, \code{"bottomright"} (default), \code{"topleft"} or \code{"topright"}.

@@ -1,4 +1,4 @@
-splineKM <- function(x,label=NULL,dl=NULL,n.knots=.nknots.smspl,
+splineKM <- function(x,label=NULL,dl=NULL,n.knots=NULL,
                      legend.pos="bottomright",
                      ylab="ECDF",
                      xlab="Value",
@@ -18,7 +18,7 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=.nknots.smspl,
     if (!any(is.na(x),na.rm=T)) stop(paste("Label",label,"was not found in the data"))
   }
   
-  if (length(n.knots)!=1) stop("n.knots must contain a single element")
+  if ((!is.null(n.knots)) & (length(n.knots)!=1)) stop("n.knots must contain a single value")
   
   x[x==label] <- NA
   
@@ -33,7 +33,8 @@ splineKM <- function(x,label=NULL,dl=NULL,n.knots=.nknots.smspl,
   x <- rev(km.ecdf@survfit$time) 
   y <- rev(km.ecdf@survfit$surv)
   
-  scdf <- smooth.spline(x,y,nknots=n.knots)
+  if (is.null(n.knots)) {scdf <- smooth.spline(x,y)}
+  if (!is.null(n.knots)) {scdf <- smooth.spline(x,y,nknots=n.knots)}
   scdf <- approxfun(scdf$x,scdf$y)
   
   plot(km.ecdf,conf.int=FALSE,ylab=ylab,xlab=xlab,

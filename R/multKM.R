@@ -1,5 +1,5 @@
 multKM <-
-  function (X,label=NULL,dl=NULL,n.draws=1000,n.knots=.nknots.smspl)
+  function (X,label=NULL,dl=NULL,n.draws=1000,n.knots=NULL)
   {
     
     if (is.character(dl)) stop("dl must be a numeric vector or matrix")
@@ -19,8 +19,8 @@ multKM <-
     if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
     if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
     
-    if ((length(n.knots)!=1) & (length(n.knots)!=ncol(X))) stop("The dimensions of n.knots and X do not agree")
-    if (length(n.knots)==1) {n.knots <- rep(list(n.knots),ncol(X))}
+    if ((!is.null(n.knots)) & (length(n.knots)!=1) & (length(n.knots)!=ncol(X))) stop("The dimensions of n.knots and X do not agree")
+    if ((!is.null(n.knots)) & (length(n.knots)==1)) {n.knots <- rep(list(n.knots),ncol(X))}
     
     km.imp <- function(x,dl,...){
       
@@ -32,7 +32,8 @@ multKM <-
       km.ecdf <- cenfit(x,xcen)
       x.km <- rev(km.ecdf@survfit$time) 
       y.km <- rev(km.ecdf@survfit$surv)
-      scdf <- smooth.spline(x.km,y.km,nknots=n.knots.part)
+      if (is.null(n.knots.part)) {scdf <- smooth.spline(x.km,y.km)}
+      if (!is.null(n.knots.part)) {scdf <- smooth.spline(x.km,y.km,nknots=n.knots.part)}
       scdf.fun <- approxfun(scdf$x,scdf$y)
       inv.scdf <- approxfun(scdf$y,scdf$x)
       

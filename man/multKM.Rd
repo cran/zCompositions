@@ -8,7 +8,7 @@ Multiplicative Kaplan-Meier smoothing spline (KMSS) replacement
 This function implements non-parametric multiplicative KMSS imputation of left-censored values (e.g. values below detection limit, rounded zeros) in compositional data sets. It is based on simulation from a smoothing spline fitted to the Kaplan-Meier (KM) estimate of the empirical cumulative distribution function (ECDF) of the data.
 }
 \usage{
-multKM(X, label = NULL, dl = NULL, n.draws=1000, n.knots=.nknots.smspl)
+multKM(X, label = NULL, dl = NULL, n.draws = 1000, n.knots = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -21,7 +21,7 @@ Numeric vector or matrix of detection limits/thresholds. These must be given on 
   \item{n.draws}{
 Number of random draws from the inverse KM ECDF generated to produce an averaged imputed value (\code{n.draws=1000}, default).
 }
-  \item{n.knots}{Integer or function giving the number of knots used for fitting a cubic smoothing spline to the KM ECDF (see \code{\link{smooth.spline}} for details). It allows for a vector or list of settings per column of \code{X}.
+  \item{n.knots}{Integer or function giving the number of knots used for fitting a cubic smoothing spline to the KM ECDF (see \code{\link{smooth.spline}} for default value). It allows for a vector or list of settings per column of \code{X}.
 }
 }
 \details{
