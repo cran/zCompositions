@@ -1,12 +1,20 @@
 cmultRepl <-
-function(X,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "counts"),delta = 0.65,threshold=0.5,correct=TRUE,t=NULL,s=NULL)
+function(X,label=0,method=c("GBM","SQ","BL","CZM","user"),output=c("prop", "counts"),delta = 0.65,threshold=0.5,correct=TRUE,t=NULL,s=NULL)
   {
 
-  if (is.character(X)) stop("X is not a valid data set or vector.")
-  if (is.vector(X)) stop("X must be a matrix or data.frame class object")
+  if (is.vector(X) | is.character(X) | (nrow(X)==1)) stop("X must be a data matrix")
+  if (!is.na(label)){
+    if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
+    if (label!=0 & any(X==0,na.rm=T)) stop("Zero values not labelled as count zeros were found in the data set")
+    if (any(is.na(X))) stop(paste("NA values not labelled as count zeros were found in the data set"))
+  }
+  if (is.na(label)){
+    if (any(X==0,na.rm=T)) stop("Zero values not labelled as count zeros were found in the data set")
+    if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
+  }
   
 X <- as.data.frame(X)
-X[X==0] <- NA
+X[X==label] <- NA
   
 N <- nrow(X); D <- ncol(X)
 n <- apply(X,1,sum,na.rm=TRUE)

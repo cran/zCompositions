@@ -1,7 +1,7 @@
 multLN <-
   function (X,label=NULL,dl=NULL,rob=FALSE,random=FALSE)
   {
-    if (is.vector(X)) stop("X must be a matrix or data.frame class object")
+    if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
     if (is.null(label)) stop("A value for label must be given")
     if (!is.na(label)){
       if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))

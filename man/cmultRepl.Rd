@@ -8,7 +8,8 @@ Bayesian-Multiplicative replacement for count zeros
 This function implements methods for imputing zeros in compositional count data sets based on a Bayesian-multiplicative replacement.
 }
 \usage{
-cmultRepl(X, method = c("GBM","SQ","BL","CZM","user"), output = c("prop","counts"),
+cmultRepl(X, label = 0,
+          method = c("GBM","SQ","BL","CZM","user"), output = c("prop","counts"),
           delta = 0.65, threshold = 0.5, correct = TRUE, t = NULL, s = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -16,8 +17,9 @@ cmultRepl(X, method = c("GBM","SQ","BL","CZM","user"), output = c("prop","counts
   \item{X}{
 Count data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote count zeros in \code{X} (default \code{label=0}).}
   \item{method}{
-Geometric Bayesian multiplicative, BM, (\code{GBM}, default); square root BM (\code{SQ}); Bayes-Laplace BM (\code{BL}); count zero multiplicative (\code{CZM}); user-specified hyper-parameters (\code{user}).
+Geometric Bayesian multiplicative (\code{GBM}, default); square root BM (\code{SQ}); Bayes-Laplace BM (\code{BL}); count zero multiplicative (\code{CZM}); user-specified hyper-parameters (\code{user}).
 }
   \item{output}{Output format: imputed proportions (\code{prop}, default) or \emph{pseudo}-counts (\code{counts}). 
 }
@@ -25,7 +27,7 @@ Geometric Bayesian multiplicative, BM, (\code{GBM}, default); square root BM (\c
 If \code{method="CZM"}, fraction of the upper threshold used to impute zeros (default \code{delta=0.65}). Also, fraction of the lowest estimated probability used to correct imputed proportions falling above it (when \code{correct=TRUE}).
 }
   \item{threshold}{
-For a vector of counts, fraction of the number of trials (sum of the counts) used as upper threshold for replacing zero counts by the \code{CZM} method (default \code{threshold=0.5}).
+For a vector of counts, factor applied to the quotient 1 over the number of trials (sum of the counts) used to produce an upper limit for replacing zero counts by the \code{CZM} method (default \code{threshold=0.5}).
 }
   \item{correct}{
 Logical vector setting whether imputed proportions falling above the lowest estimated probability for a multinomial part must be corrected or not (default \code{correct=TRUE}).

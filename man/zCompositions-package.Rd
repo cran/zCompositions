@@ -6,14 +6,14 @@
 Replacement of zeros and nondetects in compositional data sets
 }
 \description{
-This package implements simple functions to explore and replace left-censored data such as rounded or count zeros and values below the limit of detection (nondetects) according to compositional data analysis principles.
+This package implements simple functions to explore and replace left-censored data such as rounded zeros or values below the limit of detection (nondetects) and count zeros according to compositional data analysis principles.
 }
 \details{
 \tabular{ll}{
 Package: \tab zCompositions\cr
 Type: \tab Package\cr
-Version: \tab 1.0.0\cr
-Date: \tab 2014-05\cr
+Version: \tab 1.0.1\cr
+Date: \tab 2014-06\cr
 License: \tab GPL (>= 2)\cr
 }
 }

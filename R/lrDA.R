@@ -1,7 +1,7 @@
 lrDA <-
   function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),delta=0.65,n.iters=1000,m=1){
     
-    if (is.vector(X)) stop("X must be a matrix or data.frame class object")
+    if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
     if (is.null(label)) stop("A value for label must be given")
     if (!is.na(label)){
       if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))

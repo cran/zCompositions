@@ -1,7 +1,7 @@
 multRepl <-
   function(X,label=NULL,dl=NULL,delta = 0.65){
     
-    if (is.character(X)) stop("X is not a valid data set or vector.")
+    if (is.character(X)) stop("X is not a valid data matrix or vector.")
     if (is.null(label)) stop("A value for label must be given")
     if (!is.na(label)){
       if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))

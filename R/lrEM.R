@@ -2,7 +2,7 @@ lrEM <-
 function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),delta=0.65,tolerance=0.0001,
          max.iter=50,rlm.maxit=150,suppress.print=FALSE){
   
-  if (is.vector(X)) stop("X must be a matrix or data.frame class object")
+  if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
   if (is.null(label)) stop("A value for label must be given")
   if (!is.na(label)){
     if (!any(X==label,na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
@@ -138,7 +138,7 @@ function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),del
 if (rob==FALSE){
   
   pos <- which(!is.na(colSums(X)))[1]
-  if (is.na(pos)) stop("alrEM needs at least one fully observed column")
+  if (is.na(pos)) stop("lrEM based on alr requires at least one complete column")
   cpoints <- t(apply(X,1,function(x) log(dl)-log(x[pos])-.Machine$double.eps))
   cpoints <- cpoints[,-pos]
   

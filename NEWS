@@ -1,6 +1,12 @@
 RELEASE HISTORY OF THE "zCompositions" PACKAGE
 ==============================================
 
+CHANGES IN zCompositions VERSION 1.0.1 [2014-06]:
+----------------------------------------------------
+
+* Minor bugs in error messages fixed.
+
+* cmultRepl: label argument added (default label = 0).
 
 CHANGES IN zCompositions VERSION 1.0.0 [2014-05]:
 ----------------------------------------------------
