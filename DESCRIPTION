@@ -1,0 +1,15 @@
+Package: zCompositions
+Type: Package
+Title: Replacement of zeros and nondetects in compositional data sets
+Version: 1.0.0
+Date: 2014-05
+Author: Javier Palarea-Albaladejo and Josep Antoni Martin-Fernandez
+Maintainer: Javier Palarea-Albaladejo <javier.palarea@bioss.ac.uk>
+Depends: R (>= 2.14.0), MASS, NADA, truncnorm
+ByteCompile: yes
+Description: zCompositions provides principled methods to deal with zeros and left-censoring in compositional data sets
+License: GPL (>= 2)
+Repository: CRAN
+Packaged: 2014-05-20 15:01:04 UTC; Japal
+NeedsCompilation: no
+Date/Publication: 2014-05-20 18:30:47
