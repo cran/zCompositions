@@ -2,14 +2,14 @@
 \alias{LPdata}
 \docType{data}
 \title{
-La Paloma geochemical data set
+La Paloma data set
 }
 \description{
 96 samples of a 15-part geochemical composition in micrograms/gram from La Paloma stream (Venezuela). For more details see Montero-Serrano et al. (2010).
 }
 \usage{data(LPdata)}
 \format{
-  A data frame with 96 observations on the following 15 variables.
+  A \code{\link{data.frame}} with 96 observations on the following 15 variables.
   \describe{
     \item{\code{Cr}}{a numeric vector}
     \item{\code{B}}{a numeric vector}

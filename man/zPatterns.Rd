@@ -1,6 +1,5 @@
 \name{zPatterns}
 \alias{zPatterns}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Find and display patterns of zeros or unobserved values in a data set
 }
@@ -41,7 +40,7 @@ It also prints a summary table showing zero or non-observation patterns and some
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{lrEM}}, \code{\link{lrDA}}, \code{\link{cmultRepl}}
+\code{\link{lrEM}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
 }
 \examples{
 data(LPdata)

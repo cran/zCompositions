@@ -2,7 +2,7 @@
 \alias{cmultRepl}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Bayesian-Multiplicative replacement for count zeros
+Bayesian-Multiplicative replacement of count zeros
 }
 \description{
 This function implements methods for imputing zeros in compositional count data sets based on a Bayesian-multiplicative replacement.
@@ -39,12 +39,12 @@ If \code{method="user"}, user-specified \emph{t} hyper-parameter of the Dirichle
 }
 }
 \details{
-Zero counts, assumed to be a consequence of the sampling process, are replaced under a Bayesian paradigm (\code{GBM}, \code{SQ} or \code{BL} method) by posterior estimates of the multinomial probabilities generating the counts, assuming a Dirichlet prior distribution. The argument \code{method} sets the Dirichlet hyper-parameters \code{t} (priori estimates of multinomial probabilities) and \code{s} (\emph{strength}). The user can specify their own by setting \code{method="user"} and entering them as \code{t} and \code{s} arguments. Note that, under certain circumstances (see references for details), these methods can generate imputed proportions falling above the lowest estimated probability  of a multinomial part (\emph{c}/\emph{n}, where \emph{c} is the count and \emph{n} is the number of trials). In such cases, the replacement is corrected by using a fraction (\code{delta}) of the minimum \emph{c}/\emph{n} for that part. Lastly, the non-zero parts are multiplicatively adjusted according to their compositional nature.
+Zero counts, assumed to be a consequence of the sampling process, are imputed under a Bayesian paradigm (\code{GBM}, \code{SQ} or \code{BL} method) by posterior estimates of the multinomial probabilities generating the counts, assuming a Dirichlet prior distribution. The argument \code{method} sets the Dirichlet hyper-parameters \code{t} (priori estimates of multinomial probabilities) and \code{s} (\emph{strength}). The user can specify their own by setting \code{method="user"} and entering them as \code{t} and \code{s} arguments. Note that, under certain circumstances (see references for details), these methods can generate imputed proportions falling above the lowest estimated probability  of a multinomial part (\emph{c}/\emph{n}, where \emph{c} is the count and \emph{n} is the number of trials). In such cases, the imputation is corrected by using a fraction (\code{delta}) of the minimum \emph{c}/\emph{n} for that part. Lastly, the non-zero parts are multiplicatively adjusted according to their compositional nature.
 
 On the other hand, \code{method="CZM"} uses multiplicative simple replacement (\code{\link{multRepl}}) on the matrix of estimated probabilities. The upper limit and the fraction delta used are specified by, respectively, the arguments \code{threshold} and \code{delta}. Suggested values are \code{threshold=0.5} (so the upper limit for a multinomial probability turns out to be 0.5/\emph{n}), and \code{delta=0.65} (so the imputed proportion is 65\% of the upper limit).
 }
 \value{
-By default (\code{output="prop"}) the function returns a replaced data set (\code{\link{data.frame}} class) in proportions (estimated probabilities). Alternatively (\code{output="counts"}), these proportions can be re-scaled to produce a  compositionally-equivalent matrix of \emph{pseudo}-counts (\code{output="counts"}).
+By default (\code{output="prop"}) the function returns an imputed data set (\code{\link{data.frame}} class) in proportions (estimated probabilities). Alternatively (\code{output="counts"}), these proportions can be re-scaled to produce a  compositionally-equivalent matrix of \emph{pseudo}-counts (\code{output="counts"}).
 
 When \code{correct=TRUE}, the number of times, if any, an imputed proportion was corrected to fall below the minimum estimated multinomial probability is printed.
 }
@@ -55,7 +55,7 @@ Martin-Fernandez JA, Hron K, Templ M, Filzmoser P, Palarea-Albaladejo J. Bayesia
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{zPatterns}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{lrEM}},  \code{\link{lrDA}}}
+\code{\link{zPatterns}}}
 
 \examples{
 data(Pigs)

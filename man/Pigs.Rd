@@ -9,7 +9,7 @@ Count data set consisting of scan sample behavioural observations of a group of 
 }
 \usage{data(Pigs)}
 \format{
-  A data frame with 29 observations on the following 6 variables.
+  A \code{\link{data.frame}} with 29 observations on the following 6 variables.
   \describe{
     \item{\code{BED}}{a numeric vector}
     \item{\code{HALF.BED}}{a numeric vector}

@@ -2,10 +2,10 @@
 \alias{lrEM}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Logratio EM algorithm
+Log-ratio EM algorithm
 }
 \description{
-This function implements ordinary and robust Expectation-Maximisation algorithms to replace left-censored values (e.g. values below detection limit, rounded zeros) in compositional data sets.
+This function implements model-based ordinary and robust Expectation-Maximisation algorithms to impute left-censored values (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data sets which incorporate the information of the relative covariance structure.
 }
 \usage{
 lrEM(X, label = NULL, dl = NULL, rob = FALSE,
@@ -19,14 +19,14 @@ Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
   \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved left-censored values in \code{X}.}
   \item{dl}{
-Numeric vector of detection limits/thresholds (one per component/column, use e.g. 0 if no threshold for a particular one). These must be given on the same scale as \code{X}.
+Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
   \item{rob}{
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust parameter estimates.
 }
-  \item{ini.cov}{Initial estimation of the log-ratio covariance matrix. It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement  (\code{"multRepl"}).}
+  \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or nondetects (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement  (\code{"multRepl"}).}
   \item{delta}{
-If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative replacement (\code{\link{multRepl}}) in proportions (default = 0.65).
+If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement (\code{\link{multRepl}}) in proportions (default = 0.65).
 }
   \item{tolerance}{Convergence criterion for the EM algorithm (default = 0.0001).}
   \item{max.iter}{
@@ -36,20 +36,24 @@ Maximum number of iterations for the EM algorithm (default = 50).
 If \code{rob=TRUE}, maximum number of iterations for the embedded robust regression estimation (default = 150; see \code{\link{rlm}} in \code{MASS} package for details).
 }
   \item{suppress.print}{
-Suppress printing of number of iterations required to converge (\code{suppress.print=FALSE}, default).
+Suppress printing of number of iterations and messages (\code{suppress.print=FALSE}, default).
 }
 }
 
 
 \details{
-\code{lrEM} produces a replaced data set on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
+After convergence, this function imputes left-censored compositional values by their estimated conditional expected values through coordinates representation, given the information from the observed data and the censoring thresholds. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
 
-Under maximum likelihood estimation (default, \code{rob=FALSE}), a correction factor based on the residual covariance obtained by censored regression is applied for the correct estimation of the conditional covariance matrix in the maximisation step of the EM algorithm. This is required in order to obtain the conditional expectation of the sum of cross-products between two components in the case that both involve imputed values. Note that the procedure is based on the oblique additive log-ratio (alr) transformation to simplify calculations and alleviates computational burden. Nonetheless, the same results would be obtained using an isometric log-ratio transformation (ilr). Note also that alr requires at least one complete column. Otherwise, a preliminary univariate imputation of the most simplest censoring pattern may be enough.
+It produces an imputed data set on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
 
-Under robust estimation (\code{rob=TRUE}), the algorithm requires ilr transformations in order to satisfy requirements for robust estimation methods (MM-estimation by default, see \code{rlm} function for more details). In the unlikely case of censoring patterns involving samples containing only one observed component, these are imputed by multiplicative simple replacement and a warning message identifying them is printed. An initial estimation of nondetects is required to get the algorithm started. This can be based on either the subset of fully observed cases (\code{ini.cov="complete.obs"}) or a multiplicative simple replacement of all nondetects in the data set (\code{ini.cov="multRepl"}). Note that the robust regression method involved includes random elements which can, occasionally, give rise to \code{\link{NaN}} values getting the routine execution halted. If this happened, we suggest to simply re-run the function once again.
+Under maximum likelihood (ML) estimation (default, \code{rob=FALSE}), a correction factor based on the residual covariance obtained by censored regression is applied for the correct estimation of the conditional covariance matrix in the maximisation step of the EM algorithm. This is required in order to obtain the conditional expectation of the sum of cross-products between two components in the case that both involve imputed values. Note that the procedure is based on the oblique additive log-ratio (alr) transformation to simplify calculations and alleviates computational burden. Nonetheless, the same results would be obtained using an isometric log-ratio transformation (ilr). Note also that alr requires at least one complete column. Otherwise, a preliminary imputation, e.g. by \code{\link{multRepl}} or \code{\link{multLN}}, of the most simplest censoring pattern may be enough. The argument \code{ini.cov} determines how the initial estimation of the log-ratio covariance matrix required to start the EM process is worked out.
+
+Under robust estimation (\code{rob=TRUE}), the algorithm requires ilr transformations in order to satisfy requirements for robust estimation methods (MM-estimation by default, see \code{rlm} function for more details). An initial estimation of nondetects is required to get the algorithm started. This can be based on either the subset of fully observed cases (\code{ini.cov="complete.obs"}) or a multiplicative simple replacement of all nondetects in the data set (\code{ini.cov="multRepl"}). Note that the robust regression method involved includes random elements which can, occasionally, give rise to \code{\link{NaN}} values getting the routine execution halted. If this happened, we suggest to simply re-run the function once again.
+
+In the case of censoring patterns involving samples containing only one observed component, these are imputed by multiplicative simple replacement (\code{\link{multRepl}}) and a warning message identifying them is printed.
 }
 \value{
-A \code{\link{data.frame}} object containing the replaced compositional data set. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
+A \code{\link{data.frame}} object containing the imputed compositional data set. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
 }
 \references{
 Martin-Fernandez, J.A., Hron, K., Templ, M., Filzmoser, P., Palarea-Albaladejo, J. Model-based replacement of rounded zeros in compositional data: classical and robust approaches. Computational Statistics & Data Analysis 2012; 56: 2688-2704.
@@ -64,7 +68,7 @@ Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compo
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{zPatterns}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{lrDA}}, \code{\link{cmultRepl}}
+\code{\link{zPatterns}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
 }
 \examples{
 # Data set closed to 100 (percentages, common dl = 1%)
@@ -82,14 +86,37 @@ X <- matrix(c(26.91,8.08,12.59,31.58,6.45,14.39,
 X_lrEM <- lrEM(X,label=0,dl=rep(1,6),ini.cov="multRepl")
 X_roblrEM <- lrEM(X,label=0,dl=rep(1,6),ini.cov="multRepl",rob=TRUE,tolerance=0.001)
 
+# Multiple limits of detection by component
+mdl <- matrix(0,ncol=6,nrow=10)
+mdl[2,] <- rep(1,6)
+mdl[4,] <- rep(0.75,6)
+mdl[6,] <- rep(0.5,6)
+mdl[8,] <- rep(0.5,6)
+mdl[10,] <- c(0,0,1,0,0.8,0.7)
+
+X_lrEM2 <- lrEM(X,label=0,dl=mdl,ini.cov="multRepl")
+
 # Non-closed compositional data set
 data(LPdata) # data (ppm/micrograms per gram)
 dl <- c(2,1,0,0,2,0,6,1,0.6,1,1,0,0,632,10) # limits of detection (0 for no limit)
 LPdata2 <- subset(LPdata,select=-c(Cu,Ni,La))  # select a subset for illustration purposes
 dl2 <- dl[-c(5,7,10)]
 
-LPdata_lrEM <- lrEM(LPdata2,label=0,dl=dl2)
-LPdata_roblrEM <- lrEM(LPdata2,label=0,dl=dl2,rob=TRUE,tolerance=0.005)
+LPdata2_lrEM <- lrEM(LPdata2,label=0,dl=dl2)
+LPdata2_roblrEM <- lrEM(LPdata2,label=0,dl=dl2,rob=TRUE,tolerance=0.005)
+
+# Two subsets of limits of detection (using e.g. robust parameter estimation)
+ # Using a subset of LPdata for faster execution
+data(LPdata) # data (ppm/micrograms per gram)
+LPdata2 <- subset(LPdata,select=-c(Cu,Ni,La))
+dl2 <- c(2,1,0,0,0,1,0.6,1,0,0,632,10)
+ # DLs for first 50 samples of LPdata2
+dl2a <- matrix(rep(1,50),ncol=1)\%*\%dl2
+ # DLs for last 46 samples of LPdata
+dl2b <- matrix(rep(1,46),ncol=1)\%*\%c(1,0.5,0,0,0,0.75,0.3,1,0,0,600,8) 
+
+mdl <- rbind(dl2a,dl2b)
+LPdata2_roblrEM <- lrEM(LPdata2,label=0,dl=mdl,rob=TRUE,tolerance=0.005)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

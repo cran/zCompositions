@@ -1,5 +1,8 @@
 lrDA <-
-  function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),delta=0.65,n.iters=1000,m=1){
+  function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),delta=0.65,n.iters=1000,m=1,store.mi=FALSE){
+    
+    if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+    if (is.vector(dl)) dl <- matrix(dl,nrow=1)
     
     if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
     if (is.null(label)) stop("A value for label must be given")
@@ -12,8 +15,10 @@ lrDA <-
       if (any(X==0,na.rm=T)) stop("Zero values not labelled as censored values were found in the data set")
       if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
     }
-    if (is.character(dl)) stop("dl must be a numeric vector")
-    if (length(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
+    if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
+    if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
+    
+    if ((store.mi==TRUE) & (m==1)) store.mi <- FALSE
     
     lm.sweep <- function(M,C,varobs){
       
@@ -68,23 +73,41 @@ lrDA <-
       return(list(betas=B,resid=CR))
     }
     
-    inv.alr <- function(x,pos){
+    inv.raw <- function(Y,X,pos,closed,nn,c){
       
-      ad<-1/(rowSums(exp(x))+1)
-      ax<-exp(x)*ad
-      if(pos==1) {
-        a<-cbind(ad,ax)
-      }
-      else { 
-        if (dim(x)[2] < pos){
-          a<-cbind(ax,ad)
-        }   
-        else {
-          a<-cbind(ax[,1:(pos-1)],ad,ax[,pos:(dim(x)[2])])
+      inv.alr <- function(x,pos){
+        
+        ad<-1/(rowSums(exp(x))+1)
+        ax<-exp(x)*ad
+        if(pos==1) {
+          a<-cbind(ad,ax)
         }
+        else { 
+          if (dim(x)[2] < pos){
+            a<-cbind(ax,ad)
+          }   
+          else {
+            a<-cbind(ax[,1:(pos-1)],ad,ax[,pos:(dim(x)[2])])
+          }
+        }
+        return(a)
       }
-      return(a)
+      
+      Y <- inv.alr(Y,pos)
+      
+      for (i in 1:nn){
+        if (any(is.na(X[i,]))){
+          vbdl <- which(is.na(X[i,]))
+          X[i,vbdl] <- (X[i,pos]/Y[i,pos])*Y[i,vbdl]
+        }
+      }    
+      if (closed==1){
+        X <- t(apply(X,1,function(x) x/sum(x)*c[1]))
+      }
+      return(as.data.frame(X))
     }
+    
+    ini.cov <- match.arg(ini.cov)
     
     X <- as.data.frame(X)
     nn <- nrow(X); p <- ncol(X)
@@ -93,19 +116,20 @@ lrDA <-
     X <- apply(X,2,as.numeric)
     c <- apply(X,1,sum,na.rm=TRUE)
     
+    if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl
+    
     # Check for closure
     closed <- 0
     if (all( abs(c - mean(c)) < .Machine$double.eps^0.5 )) closed <- 1
     
     pos <- which(!is.na(colSums(X)))[1]
-    if (is.na(pos)) stop("lrEM needs at least one fully observed column")
-    cpoints <- t(apply(X,1,function(x) log(dl)-log(x[pos])-.Machine$double.eps))
+    if (is.na(pos)) stop("lrDA requires at least one fully observed column")
+    
+    cpoints <- log(dl)-log(X[,pos])-.Machine$double.eps
     cpoints <- cpoints[,-pos]
     
-    X_alr <- t(apply(X,1,function(x) log(x)-log(x[pos])))[,-pos]
+    X_alr <- log(X)-log(X[,pos]); X_alr <- as.matrix(X_alr[,-pos])
     nn <- nrow(X_alr); p <- ncol(X_alr)
-    
-    ini.cov <- match.arg(ini.cov)
     
     if (ini.cov == "complete.obs"){
       if (inherits(try(solve(cov(X,use=ini.cov)),silent=TRUE),"try-error"))
@@ -129,12 +153,20 @@ lrDA <-
     
     t <- 0
     k <- 0
+    runs <- 0
+    alt.in <- FALSE
+    alt.pat <- 0
+    alt.mr <- 0
     
-    if (m > 1) imputed <- matrix(0,nrow=m,ncol=sum(is.na(X_alr)))
+    if (m > 1){
+      imputed <- matrix(0,nrow=m,ncol=sum(is.na(X_alr)))
+      if (store.mi==TRUE) mi.list <- vector(mode="list",m)
+    }
     
     while (t <= n.iters*m){
       
       Y <- X_alr                              
+      runs <- runs + 1
       
       # I-step
       
@@ -142,11 +174,20 @@ lrDA <-
         i <- which(misspat==npat) 
         varobs <- which(!is.na(X_alr[i[1],]))
         varmiss <- which(is.na(X_alr[i[1],]))
-        
+        if (length(varobs) == 0){
+          alt.in <- TRUE
+          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],delta=delta)
+          Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
+          if (runs == 1){
+            alt.pat <- c(alt.pat,npat)
+            alt.mr <- list(alt.mr,i)
+          }
+          break
+        }
         sigmas <- matrix(0,ncol=p)
         B <- matrix(lm.sweep(M,C,varobs)[[1]],ncol=length(varmiss))
         CR <- lm.sweep(M,C,varobs)[[2]]
-        Y[i,varmiss] <- matrix(1,nrow=length(i))%*%B[1,] + X_alr[i,varobs]%*%B[2:(length(varobs)+1),]
+        Y[i,varmiss] <- matrix(1,nrow=length(i))%*%B[1,] + X_alr[i, varobs, drop=FALSE]%*%B[2:(length(varobs)+1),]
         sigmas[varmiss] <- sqrt(diag(as.matrix(CR)))
         for (j in 1:length(varmiss)){                                
           sigma <- sigmas[varmiss[j]]
@@ -157,6 +198,9 @@ lrDA <-
       if ((t%in%((1:m)*n.iters)) & (m > 1)){
         k <- k + 1
         imputed[k,] <- Y[which(is.na(X_alr))]
+        if (store.mi==TRUE){
+         mi.list[[k]] <- Y
+        }
       }
 
       # P-step
@@ -168,19 +212,18 @@ lrDA <-
 
     }
     
-    if (m > 1) Y[which(is.na(X_alr))] <- colMeans(imputed) # MI estimates
+    if ((m > 1) & (store.mi == FALSE)) Y[which(is.na(X_alr))] <- colMeans(imputed) # MI estimates
     
-    Y <- inv.alr(Y,pos)
+    if (store.mi==FALSE) X <- inv.raw(Y,X,pos,closed,nn,c)
     
-    for (i in 1:nn){
-      if (any(is.na(X[i,]))){
-        vbdl <- which(is.na(X[i,]))
-        X[i,vbdl] <- (X[i,pos]/Y[i,pos])*Y[i,vbdl]
+    if (store.mi==TRUE) X <- lapply(mi.list,FUN=function(x) inv.raw(x,X,pos,closed,nn,c))
+    
+    if (alt.in) {
+      cat("Warning: samples with only one observed component were found \n")
+      for (i in 2:length(alt.pat)){
+        cat(paste("  Pattern no.",alt.pat[i],"was imputed using multiplicative simple replacement \n"))
+        cat("   Affected samples id: "); cat(alt.mr[[i]]); cat("\n\n")
       }
-    }    
-    if (closed==1){
-      X <- t(apply(X,1,function(x) x/sum(x)*c[1]))
-    } 
-    
-    return(as.data.frame(X))    
+    }
+    return(X)
   }

@@ -1,6 +1,9 @@
 multRepl <-
   function(X,label=NULL,dl=NULL,delta = 0.65){
     
+    if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+    if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+    
     if (is.character(X)) stop("X is not a valid data matrix or vector.")
     if (is.null(label)) stop("A value for label must be given")
     if (!is.na(label)){
@@ -12,11 +15,12 @@ multRepl <-
       if (any(X==0,na.rm=T)) stop("Zero values not labelled as censored values were found in the data set")
       if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
     }
-    if (is.character(dl)) stop("dl must be a numeric vector")
     if (is.vector(X))
-      if (length(dl)!=ncol(as.data.frame(matrix(X,ncol=length(X))))) stop("The number of columns in X and dl do not agree")
-    if (!is.vector(X))
-      if (length(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
+      if (ncol(dl)!=ncol(as.data.frame(matrix(X,ncol=length(X))))) stop("The number of columns in X and dl do not agree")
+    if (!is.vector(X)){
+      if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
+      if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
+    }
     
     nam <- NULL
     if (!is.null(names(X))) nam <- names(X)
@@ -33,7 +37,7 @@ multRepl <-
     closed <- 0
     if (all( abs(c - mean(c)) < .Machine$double.eps^0.5 )) closed <- 1
     
-    dl <- matrix(rep(1,nn),ncol=1)%*%dl
+    if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl
     
     Y <- X
     

@@ -1,15 +1,15 @@
 Package: zCompositions
 Type: Package
-Title: Replacement of zeros and nondetects in compositional data sets
-Version: 1.0.1
-Date: 2014-06
+Title: Imputation of Zeros and Nondetects in Compositional Data Sets
+Version: 1.0.2
+Date: 2014-09
 Author: Javier Palarea-Albaladejo and Josep Antoni Martin-Fernandez
 Maintainer: Javier Palarea-Albaladejo <javier.palarea@bioss.ac.uk>
 Depends: R (>= 2.14.0), MASS, NADA, truncnorm
 ByteCompile: yes
-Description: zCompositions provides principled methods to deal with zeros and left-censoring in compositional data sets
+Description: Principled methods to impute multivariate left-censored data and zeros in compositional data sets
 License: GPL (>= 2)
 Repository: CRAN
-Packaged: 2014-06-03 10:40:26 UTC; Japal
+Packaged: 2014-09-09 13:48:00 UTC; Japal
 NeedsCompilation: no
-Date/Publication: 2014-06-03 13:36:26
+Date/Publication: 2014-09-10 01:02:13
