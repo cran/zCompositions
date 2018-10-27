@@ -1,6 +1,6 @@
-92f2d3a248e77615ea6d88ae6809f89b *DESCRIPTION
+43d86352c8abb5fd1d327d6ffa169fc4 *DESCRIPTION
 d83ebd6ce3c3f0e37994d7d0dc1e1025 *NAMESPACE
-a4807b79277962ab615e0c80986e2f0d *NEWS
+fb02c8c5d387325baae64c4e1ed9082d *NEWS
 c40f0156cb5c122275448e3e50084ae2 *R/cmultRepl.R
 ad313001af0cb58fb3debb4fb3857712 *R/lcTest.R
 726eaebf7de166315aad06c72209f75b *R/lrDA.R
@@ -31,7 +31,7 @@ b3ca947a8aeb7d4b37e238af475f6975 *man/lrDA.Rd
 95d3ba70c720f85c275504e887479cbd *man/multLN.Rd
 110125c8ac6e7228e65814aaf283e148 *man/multRepl.Rd
 9b59e667563ceb4f0a9bc0161408475d *man/splineKM.Rd
-d95e55c4165a7ee51fdc79014fdc1458 *man/zCompositions-package.Rd
+dfd78da9e200694349d47736f5895bac *man/zCompositions-package.Rd
 bac035c4ed4bf441f19069dacdb84363 *man/zPatterns.Rd
 399bb535521f09075cb26a906a62724d *man/zVarArray.Rd
 536828a87a1435074596a67ad0ad246b *man/zVarArrayError.Rd
