@@ -11,7 +11,7 @@ This function implements model-based ordinary and robust Expectation-Maximisatio
 lrEM(X, label = NULL, dl = NULL, rob = FALSE,
         ini.cov = c("complete.obs", "multRepl"), delta = 0.65,
         tolerance = 0.0001, max.iter = 50, rlm.maxit = 150,
-        imp.missing = FALSE, suppress.print = FALSE)
+        imp.missing = FALSE, suppress.print = FALSE, closure = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -25,7 +25,7 @@ Numeric vector or matrix of detection limits/thresholds. These must be given on 
   \item{rob}{
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust parameter estimates.
 }
-  \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or unobserved data (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement of left-censored data (\code{"multRepl"}).}
+  \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or unobserved data (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement (\code{"multRepl"}).}
   \item{delta}{
 If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) expressed in proportions (default = 0.65).
 }
@@ -40,6 +40,7 @@ If \code{rob=TRUE}, maximum number of iterations for the embedded robust regress
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
+  \item{closure}{Closure value used to add a residual part if needed when \code{ini.cov="multRepl"} is used (see \code{?multRepl}).}
 }
 
 
@@ -56,7 +57,7 @@ Note that conditional imputation based on log-ratio coordinates cannot be conduc
 
 \emph{Missing data imputation}
 
-This function can be employed to impute missing data with their conditional expectation using the EM algorithm under regular conditions by setting \code{imp.missing = TRUE}. Either maximum-likelihood or robust estimation can be used through the \code{rob} argument. For this case, the argument \code{label} indicates the unique label for missing values. The argument \code{dl} is ignored as it is meaningless here and the \code{"complete.obs"} option is fixed for the \code{ini.cov} argument.
+This function can be employed to impute missing data with their conditional expectation using the EM algorithm under regular conditions by setting \code{imp.missing = TRUE}. Either maximum-likelihood or robust estimation can be used through the \code{rob} argument. For this case, the argument \code{label} indicates the unique label for missing values. The algorithm can be initiated using either \code{"complete.obs"} or \code{"multRepl"} (for missing data) as specified by the \code{ini.cov} argument. The argument \code{dl} is ignored as it is meaningless here.
 }
 \value{
 A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
