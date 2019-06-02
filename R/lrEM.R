@@ -163,19 +163,11 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       M <- matrix(colMeans(X_alr,na.rm=T),ncol=1)
       C <- cov(X_alr,use=ini.cov)}
     else {
-      if (imp.missing == FALSE){
-        X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,closure=closure)
+        X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,imp.missing=imp.missing,closure=closure)
         if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
         X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
         M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
-        C <- cov(X.mr_alr)                         }
-      if (imp.missing == TRUE){
-        X.mr <- multRepl(X,label=NA,imp.missing=T,closure=closure)
-        if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
-        X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
-        M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
-        C <- cov(X.mr_alr)   
-                              }
+        C <- cov(X.mr_alr)
         }  
     
     iter_again <- 1
@@ -198,14 +190,8 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
         varmiss <- which(is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
-          if (imp.missing==FALSE){
-            temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],
-                             delta=delta,closure=closure)
-            Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
-          }
-          if (imp.missing==TRUE){
-            stop("Please remove samples with only one observed component (check out using zPatterns).")
-          }
+          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],delta=delta,imp.missing=imp.missing,closure=closure)
+          Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
           if (niters == 1){
             alt.pat <- c(alt.pat,npat)
             alt.mr <- list(alt.mr,i)

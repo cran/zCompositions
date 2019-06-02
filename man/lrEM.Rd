@@ -36,7 +36,7 @@ Maximum number of iterations for the EM algorithm (default = 50).
   \item{rlm.maxit}{
 If \code{rob=TRUE}, maximum number of iterations for the embedded robust regression estimation (default = 150; see \code{\link{rlm}} in \code{MASS} package for details).
 }
-  \item{imp.missing}{If \code{TRUE} then unobserved data identified by \code{label} are treated as missing instead of left-censored data (default = \code{FALSE}). Note that \code{ini.cov} is fixed to \code{"complete.obs"} in this case.}
+  \item{imp.missing}{If \code{TRUE} then unobserved data identified by \code{label} are treated as missing data (default = \code{FALSE}).}
   \item{suppress.print}{
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
@@ -45,7 +45,7 @@ Suppress printed feedback (\code{suppress.print = FALSE}, default).
 
 
 \details{
-After convergence, this function imputes left-censored compositional data by their estimated conditional expected values through coordinates representation, given the information from the observed data and the censoring thresholds. It allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
+After convergence, this function imputes unobserved compositional data by their estimated conditional expected values through coordinates representation, given the information from the observed data. For left-censoring problems, it allows for either single (\code{vector} form) or multiple (\code{matrix} form, same size as \code{X}) limits of detection by component. Any threshold value can be set for non-censored elements (e.g. use 0 if no threshold for a particular column or element of the data matrix).
 
 It produces an imputed data set on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
 
@@ -70,6 +70,9 @@ Palarea-Albaladejo J, Martin-Fernandez JA, Gomez-Garcia J. A parametric approach
 Palarea-Albaladejo J, Martin-Fernandez JA. A modified EM alr-algorithm for replacing rounded zeros in compositional data sets. Computers & Geosciences 2008; 34(8): 902-917.
 
 Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. DOI: \url{http://dx.doi.org/10.1016/j.aca.2012.12.029}.
+
+Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
+left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

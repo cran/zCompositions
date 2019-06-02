@@ -18,8 +18,10 @@ multRepl <-
       if (any(X==0,na.rm=T)) stop("Zero values not labelled as censored or missing values were found in the data set")
       if (!any(is.na(X),na.rm=T)) stop(paste("Label",label,"was not found in the data set"))
     }
-    if (is.vector(X))
+    if (is.vector(X)){
+      if (imp.missing==TRUE) stop("Data matrix required: missing values cannot be imputed in single vectors")
       if (ncol(dl)!=ncol(as.data.frame(matrix(X,ncol=length(X))))) stop("The number of columns in X and dl do not agree")
+    }
     if (!is.vector(X)){
       if (imp.missing==FALSE){
         if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
