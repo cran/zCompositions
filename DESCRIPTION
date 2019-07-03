@@ -2,11 +2,11 @@ Package: zCompositions
 Type: Package
 Title: Treatment of Zeros, Left-Censored and Missing Values in
         Compositional Data Sets
-Version: 1.3.2
-Date: 2019-09-01
+Version: 1.3.2-1
+Date: 2019-07-02
 Author: Javier Palarea-Albaladejo and Josep Antoni Martin-Fernandez
 Maintainer: Javier Palarea-Albaladejo <javier.palarea@bioss.ac.uk>
-Depends: R (>= 2.14.0), MASS, NADA, truncnorm, miscF
+Depends: R (>= 2.14.0), MASS, NADA, truncnorm
 ByteCompile: yes
 Description: Principled methods for the imputation of zeros, left-censored and missing data in
     compositional data sets.
@@ -14,5 +14,5 @@ License: GPL (>= 2)
 Repository: CRAN
 RoxygenNote: 5.0.1
 NeedsCompilation: no
-Packaged: 2019-06-01 07:18:21 UTC; Japal
-Date/Publication: 2019-06-02 05:20:04 UTC
+Packaged: 2019-07-02 15:43:01 UTC; Japal
+Date/Publication: 2019-07-03 05:10:03 UTC

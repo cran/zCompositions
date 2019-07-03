@@ -44,7 +44,7 @@ After convergence of the Markov chain Monte Carlo (MCMC) iterative process to it
 
 It produces imputed data sets on the same scale as the input data set. If \code{X} is not closed to a constant sum, then the results are adjusted to provide a compositionally equivalent data set, expressed in the original scale, which leaves the absolute values of the observed components unaltered.
 
-The common conjugate normal inverted-Wishart distribution with non-informative prior has been assumed for the model parameters in the coordinates space. Under this setting, convergence is expected to be fast (\code{n.iters} set to 1000 by default). Besides, considering EM parameter estimates as initial point for the DA algorithm (\code{ini.cov="lrEM"}) assures faster convergence by starting near the centre of the posterior distribution.
+The common conjugate normal inverted-Wishart distribution with non-informative Jeffreys prior has been assumed for the model parameters in the coordinates space. Under this setting, convergence is expected to be fast (\code{n.iters} set to 1000 by default). Besides, considering EM parameter estimates as initial point for the DA algorithm (\code{ini.cov="lrEM"}) assures faster convergence by starting near the centre of the posterior distribution.
 
 By setting \code{m} greater than 1, the procedure also allows for multiple imputations of the censored values drawn at regular intervals after convergence. In this case, in addition to the burn-in period for convergence, \code{n.iters} determines the gap, large enough to prevent from correlated values, between successive imputations. The total number of iterations is then \code{n.iters*m}. By default, a single imputed data set results from averaging the \code{m} imputations in the space of coordinates. If \code{store.mi=TRUE}, a list with \code{m} imputed data sets is generated instead.
 
@@ -111,7 +111,7 @@ LPdata2_lrDA <- lrDA(LPdata2,label=0,dl=dl2)}
 
 \dontrun{ # May take a little while
 # Treating zeros as missing data for illustration purposes only
-LPdata2_lrDAmiss <- lrDA(LPdata2,label=0,imp.missing=TRUE)}
+LPdata2_lrDAmiss <- lrDA(LPdata2,label=0,imp.missing=TRUE,closure=10^6)}
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
