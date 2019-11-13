@@ -1,6 +1,6 @@
-9c4fbbb2c0891fda21cddff2f66d4ed0 *DESCRIPTION
+472bfbb8cd04278252984a61c065e2ed *DESCRIPTION
 d17c53760ec157123d9edb23e7b67f91 *NAMESPACE
-3616946ad42356d7894b8c8ce4b04fd6 *NEWS
+7695c1f329ac62dd1b79927957474f59 *NEWS
 95d81f97ab736db4c6228cb969531204 *R/cmultRepl.R
 1f715accb88c49b4e7ca742078378da9 *R/lcTest.R
 198fae387047d9a634f805501afd2a60 *R/lrDA.R
@@ -10,7 +10,7 @@ f7603d3ceb7d855e59e363ca55901c07 *R/lrEMplus.R
 1b23bab6c036da8f8c28bd75c7f9cf7d *R/multLN.R
 013889cea2d1860202d6728e29ed06c4 *R/multRepl.R
 aaaf251b9fdb526345ce2701e35c1b82 *R/multReplus.R
-6c0e66f342f07d60e08e1a27eb7a4a72 *R/splineKM.R
+8cd6ff6133d5496d20bfe8436e659c9e *R/splineKM.R
 01c4e8df373c4dbb9a751f4169ae32d8 *R/zPatterns.R
 278d132c1362c0e6e605d3269b51240f *R/zVarArray.R
 3c61b79ead13c732d306ca1d3ffbe344 *R/zVarArrayError.R
@@ -37,7 +37,7 @@ e96bccfabfd96c2b8b7277bd36929fec *data/Water.rda
 58a7d0cbb5b434d0f190025f5db16ba1 *man/multRepl.Rd
 8c4ce28c5ea391bb874c3b62e341c886 *man/multReplus.Rd
 d9888f76239ee6fe2c6c86c462abb573 *man/splineKM.Rd
-b1dae27fb24eab7771d3bc0dc6702842 *man/zCompositions-package.Rd
+b4ffec706bcfae59c24eecf63674ed10 *man/zCompositions-package.Rd
 c86cd926087bddc74ac09cbe2e2156a9 *man/zPatterns.Rd
 399bb535521f09075cb26a906a62724d *man/zVarArray.Rd
 536828a87a1435074596a67ad0ad246b *man/zVarArrayError.Rd
