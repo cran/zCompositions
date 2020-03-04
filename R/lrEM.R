@@ -84,14 +84,14 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
     ad<-1/(rowSums(exp(x))+1)
     ax<-exp(x)*ad
     if(pos==1) {
-      a<-cbind(ad,ax)
+      a<-cbind(ad,ax,stringsAsFactors=TRUE)
     }
     else { 
       if (dim(x)[2] < pos){
-        a<-cbind(ax,ad)
+        a<-cbind(ax,ad,stringsAsFactors=TRUE)
       }   
       else {
-        a<-cbind(ax[,1:(pos-1)],ad,ax[,pos:(dim(x)[2])])
+        a<-cbind(ax[,1:(pos-1)],ad,ax[,pos:(dim(x)[2])],stringsAsFactors=TRUE)
       }
     }
     return(a)
@@ -125,11 +125,11 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   
   ## Preliminaries ----  
   
-  X <- as.data.frame(X)
+  X <- as.data.frame(X,stringsAsFactors=TRUE)
   nn <- nrow(X); D <- ncol(X)
   
   X[X==label] <- NA
-  X <- as.data.frame(apply(X,2,as.numeric))
+  X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
   
   if (imp.missing==FALSE) {if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl}
@@ -138,7 +138,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   closed <- 0
   if (all( abs(c - mean(c)) < .Machine$double.eps^0.3 )) closed <- 1
   
-  misspat <- as.data.frame(is.na(X)*1)
+  misspat <- as.data.frame(is.na(X)*1,stringsAsFactors=TRUE)
   misspat <- as.factor(do.call(paste,c(misspat,sep="")))
   levels(misspat) <- 1:(length(levels(misspat)))
   
@@ -286,9 +286,9 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
             p <- miss[[npat]][m]
             target <- X.old[,p]
             if (imp.missing==FALSE){
-              phi <- t(apply(cbind(dl=dl[misspat==npat,p],feeder[misspat==npat,]),1,ilr))
+              phi <- t(apply(cbind(dl=dl[misspat==npat,p],feeder[misspat==npat,],stringsAsFactors=TRUE),1,ilr))
             }
-            regbasis <- as.data.frame(t(apply(cbind(target,feeder),1,ilr)))
+            regbasis <- as.data.frame(t(apply(cbind(target,feeder),1,ilr)),stringsAsFactors=TRUE)
             
             if (niters == 1){
               if (ini.cov == "complete.obs"){
@@ -300,7 +300,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
               if (ini.cov == "multRepl"){
                 target <- X.mr[,p]
                 feeder <- X.mr[,obs[[npat]]]
-                regbasis.mr <- as.data.frame(t(apply(cbind(target,feeder),1,ilr)))
+                regbasis.mr <- as.data.frame(t(apply(cbind(target,feeder),1,ilr)),stringsAsFactors=TRUE)
                 robreg <- rlm(V1 ~ .,data=regbasis.mr,method="MM",maxit = rlm.maxit)
               }  
             }
@@ -309,7 +309,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
             
             B <- matrix(robreg$coefficients,ncol=1)
             sigma <- robreg$s
-            est <- cbind(V1=B[1,] + as.matrix(regbasis[misspat==npat,-1])%*%B[-1,],regbasis[misspat==npat,-1])
+            est <- cbind(V1=B[1,] + as.matrix(regbasis[misspat==npat,-1])%*%B[-1,],regbasis[misspat==npat,-1],stringsAsFactors=TRUE)
             if (imp.missing==FALSE){
               est[,1] <- est[,1] - sigma*(dnorm((phi[,1]-est[,1])/sigma)/pnorm((phi[,1]-est[,1])/sigma))
             }
@@ -349,6 +349,6 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   cat(paste("No. iterations to converge: ",niters,"\n\n"))
   }
   
-  return(as.data.frame(X))  
+  return(as.data.frame(X,stringsAsFactors=TRUE))  
   
 }

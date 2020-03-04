@@ -86,14 +86,14 @@ lrDA <-
         ad<-1/(rowSums(exp(x))+1)
         ax<-exp(x)*ad
         if(pos==1) {
-          a<-cbind(ad,ax)
+          a<-cbind(ad,ax,stringsAsFactors=TRUE)
         }
         else { 
           if (dim(x)[2] < pos){
-            a<-cbind(ax,ad)
+            a<-cbind(ax,ad,stringsAsFactors=TRUE)
           }   
           else {
-            a<-cbind(ax[,1:(pos-1)],ad,ax[,pos:(dim(x)[2])])
+            a<-cbind(ax[,1:(pos-1)],ad,ax[,pos:(dim(x)[2])],stringsAsFactors=TRUE)
           }
         }
         return(a)
@@ -110,7 +110,7 @@ lrDA <-
       if (closed==1){
         X <- t(apply(X,1,function(x) x/sum(x)*c[1]))
       }
-      return(as.data.frame(X))
+      return(as.data.frame(X,stringsAsFactors=TRUE))
     }
     
     riwish <- function(v,S){ # From ratematrix package
@@ -133,7 +133,7 @@ lrDA <-
     
     ini.cov <- match.arg(ini.cov)
     
-    X <- as.data.frame(X)
+    X <- as.data.frame(X,stringsAsFactors=TRUE)
     nn <- nrow(X); p <- ncol(X)
     
     X[X==label] <- NA
@@ -173,7 +173,7 @@ lrDA <-
       M <- matrix(colMeans(X.em_alr,na.rm=T),ncol=1)
       C <- cov(X.em_alr)}
     
-    misspat <- as.data.frame(is.na(X)*1)
+    misspat <- as.data.frame(is.na(X)*1,stringsAsFactors=TRUE)
     misspat <- as.factor(do.call(paste,c(misspat,sep="")))
     levels(misspat) <- 1:(length(levels(misspat)))
     
@@ -189,7 +189,7 @@ lrDA <-
       if (store.mi==TRUE) mi.list <- vector(mode="list",m)
     }
     
-    while (t < n.iters*m){
+    while (t <= n.iters*m){
       
       Y <- X_alr                              
       runs <- runs + 1
