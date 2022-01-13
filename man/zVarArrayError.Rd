@@ -4,13 +4,18 @@
 \alias{zVarArrayError}
 \title{Variation array relative error}
 \usage{
-zVarArrayError(X, label = 0, groups = NULL, breakdown = FALSE,
-  suppress.print = FALSE)
+zVarArrayError(
+  X,
+  label = 0,
+  groups = NULL,
+  breakdown = FALSE,
+  suppress.print = FALSE
+)
 }
 \arguments{
 \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).}
 
-\item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zero or unobserved data in \code{X} (\code{label = 0}, default).}
+\item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved data in \code{X} (\code{label = 0}, default).}
 
 \item{groups}{Grouping factor in fully observed zero-free data sets (\code{groups = NULL}, default).}
 
@@ -54,6 +59,5 @@ Water_multKM <- multKM(Water,label=0,dl=mdl) # nondetects imputation
 zVarArrayError(Water_multKM,groups=rep(c("A","B"),each=50))
 }
 \seealso{
-\code{\link{zPatterns}}, \code{\link{zVarArray}}
+\code{\link{zPatterns}}, \code{\link{zVarArray}}.
 }
-

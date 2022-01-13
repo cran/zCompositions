@@ -11,9 +11,10 @@ Note: zeros and missing data must be labelled using 0 and \code{NA} respectively
 }
 \usage{
 lrEMplus(X, dl = NULL, rob = FALSE,
-        ini.cov = c("complete.obs", "multRepl"), delta = 0.65,
-        tolerance = 0.0001, max.iter = 50, rlm.maxit = 150,
-        suppress.print = FALSE, closure = NULL)
+            ini.cov = c("complete.obs", "multRepl"), frac = 0.65,
+            tolerance = 0.0001, max.iter = 50, rlm.maxit = 150,
+            suppress.print = FALSE, closure = NULL,
+            z.warning=0.8, delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -27,8 +28,8 @@ Numeric vector or matrix of detection limits/thresholds. These must be given on 
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust parameter estimates.
 }
   \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or unobserved data (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement (\code{"multRepl"}).}
-  \item{delta}{
-If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) expressed in proportions (default = 0.65).
+  \item{frac}{
+If \code{ini.cov="multRepl"}, parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) (default = 0.65).
 }
   \item{tolerance}{Convergence criterion (default = 0.0001).}
   \item{max.iter}{
@@ -41,11 +42,15 @@ If \code{rob=TRUE}, maximum number of iterations for the embedded robust regress
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
   \item{closure}{Closure value used to add a residual part if needed when \code{ini.cov="multRepl"} is used (see \code{?multRepl}).}
+  \item{z.warning}{
+Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
+}
+  \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 
 
 \details{
-The procedure starts with an initial imputation of either zeros (using simple replacement with \code{delta*dl}) or missing values (using geometric mean imputation from observed data) depending of which problem is the least frequent in the data set. Subsequently, iterative calls to \code{lrEM} replace zeros and missing data alternately until convergence to a stable solution or the maximum number of iterations is reached.
+The procedure starts with an initial imputation of either zeros (using simple replacement with \code{frac*dl}) or missing values (using geometric mean imputation from observed data) depending of which problem is the least frequent in the data set. Subsequently, iterative calls to \code{lrEM} replace zeros and missing data alternately until convergence to a stable solution or the maximum number of iterations is reached.
 
 See \code{?lrEM} for more details.
 }
@@ -59,7 +64,7 @@ Palarea-Albaladejo J, Martin-Fernandez JA, Gomez-Garcia J. A parametric approach
 
 Palarea-Albaladejo J, Martin-Fernandez JA. A modified EM alr-algorithm for replacing rounded zeros in compositional data sets. Computers & Geosciences 2008; 34(8): 902-917.
 
-Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. DOI: \url{http://dx.doi.org/10.1016/j.aca.2012.12.029}.
+Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. \doi{https://doi.org/10.1016/j.aca.2012.12.029}.
 
 Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
 left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.

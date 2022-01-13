@@ -8,13 +8,13 @@ Multiplicative lognormal replacement
 This function implements model-based multiplicative lognormal imputation of left-censored values (e.g. values below detection limit, rounded zeros) in compositional data sets.
 }
 \usage{
-multLN(X, label = NULL, dl = NULL, rob = FALSE, random = FALSE)
+multLN(X, label = NULL, dl = NULL, rob = FALSE, random = FALSE, z.warning = 0.8)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
-  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved left-censored values in \code{X}.}
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved left-censored values in \code{X}.}
   \item{dl}{
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
@@ -23,6 +23,9 @@ Logical value. \code{FALSE} provides maximum-likelihood estimates of model param
 }
   \item{random}{
 Logical value. Values imputed using either estimated geometric mean (\code{FALSE}, default) or random values (\code{TRUE}) below the limit of detection.
+}
+  \item{z.warning}{
+Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
 }
 }
 \details{
@@ -38,7 +41,7 @@ A \code{\link{data.frame}} object containing the imputed compositional data set 
 \references{
 Mateu-Figueras G, Pawlowsky-Glahn V, Egozcue JJ. The normal distribution in some constrained sample spaces. SORT 2013; 37(1): 29-56.
 
-Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. DOI: \url{http://dx.doi.org/10.1016/j.aca.2012.12.029}.
+Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. \doi{https://doi.org/10.1016/j.aca.2012.12.029}.
 
 Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
 left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
@@ -47,7 +50,7 @@ left-censored data under a compositional approach. Chemometrics and Intelligence
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{zPatterns}}, \code{\link{lrEM}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
+\code{\link{zPatterns}}, \code{\link{lrEM}}, \code{\link{lrSVD}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
 }
 \examples{
 # Data set closed to 100 (percentages, common dl = 1%)

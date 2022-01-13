@@ -1,18 +1,19 @@
-multReplus <- function(X, dl = NULL, delta = 0.65, suppress.print = FALSE,
-                       closure = NULL){
+multReplus <- function(X, dl = NULL, frac = 0.65, closure = NULL, z.warning = 0.8, delta=NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
-  if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+  if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
   if (is.vector(dl)) dl <- matrix(dl,nrow=1)
-
+  dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
-
   if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
   if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
-  
   if (any(is.na(X))==FALSE) stop("No missing data were found in the data set")
   if (any(X==0, na.rm=T)==FALSE) stop("No zeros were found in the data set")
   
+  if (!missing("delta")){
+    warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
+    frac <- delta
+  }
   
   gm <- function(x, na.rm=TRUE){
     exp(sum(log(x), na.rm=na.rm) / length(x[!is.na(x)]))
@@ -29,6 +30,29 @@ multReplus <- function(X, dl = NULL, delta = 0.65, suppress.print = FALSE,
   X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
 
+  # Number of zeros or missing per column for warning
+  checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x) | (x==0)))
+  if (any(checkNumZerosCol/nrow(X) == 1)) {
+    stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+      warning(paste("Column(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                    (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
+  }
+  
+  checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x) | (x==0)))
+  if (any(checkNumZerosRow/ncol(X) == 1)) {
+    stop(paste("Row(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosRow/ncol(X) > z.warning)) {
+      warning(paste("Row(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                  (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
+  }
+  
   if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl
 
   # Check for closure
@@ -74,7 +98,7 @@ multReplus <- function(X, dl = NULL, delta = 0.65, suppress.print = FALSE,
   
   ## Imputation of zeros ----
   
-  X <- multRepl(X,label=0,dl=dl,delta=delta,closure=closure)
+  X <- multRepl(X,label=0,dl=dl,frac=frac,closure=closure)
   
   ## Final section ----
   

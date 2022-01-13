@@ -1,11 +1,12 @@
 lrDA <-
-  function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),delta=0.65,
-           imp.missing=FALSE,n.iters=1000,m=1,store.mi=FALSE,closure=NULL){
+  function(X,label=NULL,dl=NULL,ini.cov=c("lrEM","complete.obs","multRepl"),frac=0.65,
+           imp.missing=FALSE,n.iters=1000,m=1,store.mi=FALSE,closure=NULL,z.warning=0.8,delta=NULL){
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
     if (imp.missing==FALSE){
-      if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+      if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
       if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+      dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
     }
     
     if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
@@ -25,6 +26,11 @@ lrDA <-
     }
     
     if ((store.mi==TRUE) & (m==1)) store.mi <- FALSE
+    
+    if (!missing("delta")){
+      warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
+      frac <- delta
+    }
     
     lm.sweep <- function(M,C,varobs){
       
@@ -140,6 +146,28 @@ lrDA <-
     X <- apply(X,2,as.numeric)
     c <- apply(X,1,sum,na.rm=TRUE)
     
+    checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
+    if (any(checkNumZerosCol/nrow(X) == 1)) {
+      stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+    }
+    else{
+      if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+        warning(paste("Column(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                    (You can use the z.warning argument to modify the warning threshold).",sep=""))
+      }
+    }
+    
+    checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x)))
+    if (any(checkNumZerosRow/ncol(X) == 1)) {
+      stop(paste("Row(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+    }
+    else{
+      if (any(checkNumZerosRow/ncol(X) > z.warning)) {
+        warning(paste("Row(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                  (You can use the z.warning argument to modify the warning threshold).",sep=""))
+      }
+    }
+    
     if (imp.missing==FALSE) {if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl}
     
     # Check for closure
@@ -163,12 +191,12 @@ lrDA <-
       M <- matrix(colMeans(X_alr,na.rm=T),ncol=1)
       C <- cov(X_alr,use=ini.cov)}
     if (ini.cov == "multRepl"){
-      X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,imp.missing=imp.missing,closure=closure)
+      X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,imp.missing=imp.missing,closure=closure)
       X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
       M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
       C <- cov(X.mr_alr)}
     if (ini.cov == "lrEM"){
-      X.em <- lrEM(X,label=NA,dl=dl,ini.cov="multRepl",delta=delta,imp.missing=imp.missing,closure=closure,suppress.print=TRUE)
+      X.em <- lrEM(X,label=NA,dl=dl,ini.cov="multRepl",frac=frac,imp.missing=imp.missing,closure=closure,suppress.print=TRUE)
       X.em_alr <- t(apply(X.em,1,function(x) log(x)-log(x[pos])))[,-pos]
       M <- matrix(colMeans(X.em_alr,na.rm=T),ncol=1)
       C <- cov(X.em_alr)}
@@ -196,13 +224,14 @@ lrDA <-
       
       # I-step
       
-      for (npat in 2:length(levels(misspat))){                     
+      for (npat in 1:length(levels(misspat))){                     
         i <- which(misspat==npat) 
-        varobs <- which(!is.na(X_alr[i[1],]))
         varmiss <- which(is.na(X_alr[i[1],]))
+        if (length(varmiss) == 0) {next} # Skip first pattern if all obs
+        varobs <- which(!is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
-          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],delta=delta,imp.missing=imp.missing,closure=closure)
+          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],frac=frac,imp.missing=imp.missing,closure=closure)
           Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
           if (runs == 1){
             alt.pat <- c(alt.pat,npat)

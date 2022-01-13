@@ -1,10 +1,11 @@
 multRepl <-
-  function(X,label=NULL,dl=NULL,delta=0.65,imp.missing=FALSE,closure=NULL){
+  function(X,label=NULL,dl=NULL,frac=0.65,imp.missing=FALSE,closure=NULL,z.warning=0.8,delta=NULL){
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
     if (imp.missing==FALSE){
-      if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+      if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
       if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+      dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
     }
     
     if (is.character(X)) stop("X is not a valid data matrix or vector.")
@@ -29,6 +30,11 @@ multRepl <-
       }
     }
     
+    if (!missing("delta")){
+      warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
+      frac <- delta
+    }
+    
     gm <- function(x, na.rm=TRUE){
       exp(sum(log(x), na.rm=na.rm) / length(x[!is.na(x)]))
     }
@@ -40,6 +46,30 @@ multRepl <-
     X[X==label] <- NA
     X <- apply(X,2,as.numeric)
     if (is.vector(X)) X <- as.data.frame(matrix(X,ncol=length(X)),stringsAsFactors=TRUE)
+    
+    if (nrow(X) > 1){
+      checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
+      if (any(checkNumZerosCol/nrow(X) == 1)) {
+        stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+      }
+      else{
+        if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+          warning(paste("Column(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                    (You can use the z.warning argument to modify the warning threshold).",sep=""))
+        }
+      }
+      
+      checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x)))
+      if (any(checkNumZerosRow/ncol(X) == 1)) {
+        stop(paste("Row(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+      }
+      else{
+        if (any(checkNumZerosRow/ncol(X) > z.warning)) {
+          warning(paste("Row(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                  (You can use the z.warning argument to modify the warning threshold).",sep=""))
+        }
+      }
+    }
     
     nn <- nrow(X); D <- ncol(X)
     c <- apply(X,1,sum,na.rm=TRUE)
@@ -66,7 +96,7 @@ multRepl <-
       for (i in 1:nn){
         if (any(is.na(X[i,]))){
           z <- which(is.na(X[i,]))
-          Y[i,z] <- delta*dl[i,z]
+          Y[i,z] <- frac*dl[i,z]
           if (!is.null(closure)){
             Y[i,-z] <- (1-(sum(Y[i,z]))/c[i])*Xresid[i,-z]
             tmp <- Y[i,-(D+1)]

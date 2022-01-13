@@ -1,11 +1,11 @@
 multLN <-
-  function (X,label=NULL,dl=NULL,rob=FALSE,random=FALSE)
+  function (X,label=NULL,dl=NULL,rob=FALSE,random=FALSE,z.warning=0.8)
   {
     
     if (any(X<0, na.rm=T)) stop("X contains negative values")
-    if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+    if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
     if (is.vector(dl)) dl <- matrix(dl,nrow=1)
-    
+    dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
     if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
     if (is.null(label)) stop("A value for label must be given")
     if (!is.na(label)){
@@ -22,6 +22,28 @@ multLN <-
     
     X[X==label] <- NA
     X <- apply(X,2,as.numeric)
+    
+    checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
+    if (any(checkNumZerosCol/nrow(X) == 1)) {
+      stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+    }
+    else{
+      if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+        warning(paste("Column(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                    (You can use the z.warning argument to modify the warning threshold).",sep=""))
+      }
+    }
+    
+    checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x)))
+    if (any(checkNumZerosRow/ncol(X) == 1)) {
+      stop(paste("Row(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+    }
+    else{
+      if (any(checkNumZerosRow/ncol(X) > z.warning)) {
+        warning(paste("Row(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                  (You can use the z.warning argument to modify the warning threshold).",sep=""))
+      }
+    }
     
     nn <- nrow(X); p <- ncol(X)
     c <- apply(X,1,sum,na.rm=TRUE)

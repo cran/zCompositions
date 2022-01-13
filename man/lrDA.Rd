@@ -9,21 +9,22 @@ This function implements a simulation-based Data Augmentation (DA) algorithm to 
 }
 \usage{
 lrDA(X, label = NULL, dl = NULL,
-        ini.cov=c("lrEM","complete.obs","multRepl"), delta = 0.65,
-        imp.missing = FALSE, n.iters = 1000, m = 1, store.mi = FALSE, closure = NULL)
+        ini.cov=c("lrEM","complete.obs","multRepl"), frac = 0.65,
+        imp.missing = FALSE, n.iters = 1000, m = 1, store.mi = FALSE, closure = NULL,
+        z.warning = 0.8, delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{
 Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
-  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved left-censored values in \code{X}.}
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved values in \code{X}.}
   \item{dl}{
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
   \item{ini.cov}{Initial estimation of the log-ratio covariance matrix. It can be based on lrEM estimation (\code{"lrEM"}, default), complete observations (\code{"complete.obs"})  or multiplicative simple replacement (\code{"multRepl"}).}
-  \item{delta}{
-If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement (\code{\link{multRepl}}) in proportions (default = 0.65).
+  \item{frac}{
+If \code{ini.cov="multRepl"}, parameter for initial multiplicative simple replacement (\code{\link{multRepl}}) (default = 0.65).
 }
   \item{imp.missing}{If \code{TRUE} then unobserved data identified by \code{label} are treated as missing data (default = \code{FALSE}).}
   \item{n.iters}{
@@ -36,6 +37,10 @@ Number of multiple imputations (default = 1).
 Logical value. If \code{m>1} creates a list with \code{m} imputed data matrices. (\code{store.mi=FALSE}, default).
 }
   \item{closure}{Closure value used to add a residual part if needed when multiplicative simple replacement is used to initiate the DA algorithm, either directly (\code{ini.cov="multRepl"}) or as part of lrEM estimation (\code{ini.cov="lrEM"}) (see \code{?multRepl}).}
+  \item{z.warning}{
+Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
+}
+  \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 
 
@@ -50,7 +55,7 @@ By setting \code{m} greater than 1, the procedure also allows for multiple imput
 
 In the case of censoring patterns involving samples containing only one observed component, these are imputed by multiplicative simple replacement (\code{\link{multRepl}}) and a warning message identifying them is printed.
 
-%Note that when \code{ini.cov="lrEM"} is chosen, the embedded lrEM procedure (\code{\link{lrEM}}) will consider multiplicative replacement (\code{\link{multRepl}}), with delta parameter equal to \code{delta}, for initial covariance estimate. This is simply done in order to prevent it from potentially failing due to matrix singularity issues if working with few complete samples in the data set.
+%Note that when \code{ini.cov="lrEM"} is chosen, the embedded lrEM procedure (\code{\link{lrEM}}) will consider multiplicative replacement (\code{\link{multRepl}}), with frac parameter equal to \code{frac}, for initial covariance estimate. This is simply done in order to prevent it from potentially failing due to matrix singularity issues if working with few complete samples in the data set.
 
 \emph{Missing data imputation}
 
@@ -69,7 +74,7 @@ left-censored data under a compositional approach. Chemometrics and Intelligence
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{zPatterns}}, \code{\link{lrEM}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
+\code{\link{zPatterns}}, \code{\link{lrEM}}, \code{\link{lrSVD}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
 }
 \examples{
 # Data set closed to 100 (percentages, common dl = 1%)

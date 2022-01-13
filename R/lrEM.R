@@ -1,11 +1,12 @@
-lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),delta=0.65,tolerance=0.0001,
+lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRepl"),frac=0.65,tolerance=0.0001,
          max.iter=50,rlm.maxit=150,imp.missing=FALSE,suppress.print=FALSE,
-         closure=NULL){
+         closure=NULL,z.warning=0.8,delta=NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
   if (imp.missing==FALSE){
-    if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+    if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
     if (is.vector(dl)) dl <- matrix(dl,nrow=1)
+    dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
   }
   
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
@@ -22,6 +23,11 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   if (imp.missing==FALSE){
     if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
     if ((nrow(dl)>1) & (nrow(dl)!=nrow(X))) stop("The number of rows in X and dl do not agree")
+  }
+  
+  if (!missing("delta")){
+    warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
+    frac <- delta
   }
   
   ini.cov <- match.arg(ini.cov)
@@ -132,6 +138,28 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
   X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
   
+  checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x)))
+  if (any(checkNumZerosCol/nrow(X) == 1)) {
+    stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+      warning(paste("Column(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                    (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
+  }
+  
+  checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x)))
+  if (any(checkNumZerosRow/ncol(X) == 1)) {
+    stop(paste("Row(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosRow/ncol(X) > z.warning)) {
+      warning(paste("Row(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                  (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
+  }
+  
   if (imp.missing==FALSE) {if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl}
   
   # Check for closure
@@ -163,7 +191,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       M <- matrix(colMeans(X_alr,na.rm=T),ncol=1)
       C <- cov(X_alr,use=ini.cov)}
     else {
-        X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,imp.missing=imp.missing,closure=closure)
+        X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,imp.missing=imp.missing,closure=closure)
         if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
         X.mr_alr <- t(apply(X.mr,1,function(x) log(x)-log(x[pos])))[,-pos]
         M <- matrix(colMeans(X.mr_alr,na.rm=T),ncol=1)
@@ -184,13 +212,14 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       Y <- X_alr                              
       v <- matrix(0,D,D)
       
-      for (npat in 2:length(levels(misspat))){                    
+      for (npat in 1:length(levels(misspat))){
         i <- which(misspat==npat) 
-        varobs <- which(!is.na(X_alr[i[1],]))
         varmiss <- which(is.na(X_alr[i[1],]))
+        if (length(varmiss) == 0) {next} # Skip first pattern if all obs
+        varobs <- which(!is.na(X_alr[i[1],]))
         if (length(varobs) == 0){
           alt.in <- TRUE
-          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],delta=delta,imp.missing=imp.missing,closure=closure)
+          temp <- multRepl(X[i,,drop=FALSE],label=NA,dl=dl[i,,drop=FALSE],frac=frac,imp.missing=imp.missing,closure=closure)
           Y[i,] <- t(apply(temp,1,function(x) log(x)-log(x[pos])))[,-pos]
           if (niters == 1){
             alt.pat <- c(alt.pat,npat)
@@ -244,7 +273,7 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
           X.mr <- multRepl(X,label=NA,imp.missing=T,closure=closure)
           if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
           }
-     else {X.mr <- multRepl(X,label=NA,dl=dl,delta=delta,closure=closure)
+     else {X.mr <- multRepl(X,label=NA,dl=dl,frac=frac,closure=closure)
            if (any(X.mr < 0)) {stop("ini.cov: negative values produced using multRepl (please check out closure argument and multRepl help for advice)")}
           }
     }
@@ -266,16 +295,17 @@ lrEM <- function(X,label=NULL,dl=NULL,rob=FALSE,ini.cov=c("complete.obs","multRe
       niters <- niters+1
       if (niters > 1) {X.old <- X; C.old <- C}
       
-      for (npat in 2:length(levels(misspat))){                    
+      for (npat in 1:length(levels(misspat))){
+        if (length(miss[[npat]]) == 0) {next} # Skip first pattern if all obs
         if ((length(obs[[npat]]) == 1) & (!any(npat==alt.pat))){
           alt.in <- TRUE
           if (imp.missing==FALSE){
             X[misspat==npat,] <- multRepl(X.old[misspat==npat,,drop=FALSE],
                                           label=NA,dl=dl[misspat==npat,,drop=FALSE],
-                                          delta=delta,closure=closure)    
+                                          frac=frac,closure=closure)    
           }
           if (imp.missing==TRUE){
-            stop("Please remove samples with only one observed component (check out using zPatterns).")
+            stop("Please remove samples with only one observed component (check it out using zPatterns).")
           }
           alt.pat <- c(alt.pat,npat)
           alt.mr <- list(alt.mr,which(misspat==npat))

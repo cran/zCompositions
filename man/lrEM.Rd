@@ -5,20 +5,23 @@
 Log-ratio EM algorithm
 }
 \description{
-This function implements model-based ordinary and robust Expectation-Maximisation algorithms to impute left-censored data (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data which incorporate the information of the relative covariance structure. Alternatively, this function can be used to impute missing data.
+This function implements model-based ordinary and robust Expectation-Maximisation algorithms to impute left-censored data (e.g. values below detection limit, rounded zeros) via coordinates representation of compositional data which incorporate the information of the relative covariance structure.
+
+This function can be also used to impute missing data instead by setting \code{imp.missing = TRUE} (see \code{\link{lrEMplus}} to treat censored and missing data simultaneously).
 }
 \usage{
 lrEM(X, label = NULL, dl = NULL, rob = FALSE,
-        ini.cov = c("complete.obs", "multRepl"), delta = 0.65,
+        ini.cov = c("complete.obs", "multRepl"), frac = 0.65,
         tolerance = 0.0001, max.iter = 50, rlm.maxit = 150,
-        imp.missing = FALSE, suppress.print = FALSE, closure = NULL)
+        imp.missing = FALSE, suppress.print = FALSE, closure = NULL,
+        z.warning = 0.8, delta = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{X}{
 Compositional data set (\code{\link{matrix}} or \code{\link{data.frame}} class).
 }
-  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote unobserved values in \code{X}.}
+  \item{label}{Unique label (\code{\link{numeric}} or \code{\link{character}}) used to denote zeros/unobserved values in \code{X}.}
   \item{dl}{
 Numeric vector or matrix of detection limits/thresholds. These must be given on the same scale as \code{X}.
 }
@@ -26,8 +29,8 @@ Numeric vector or matrix of detection limits/thresholds. These must be given on 
 Logical value. \code{FALSE} provides maximum-likelihood estimates of model parameters (default), \code{TRUE} provides robust parameter estimates.
 }
   \item{ini.cov}{Initial estimation of either the log-ratio covariance matrix (ML estimation) or unobserved data (robust estimation). It can be based on either complete observations (\code{"complete.obs"}, default) or multiplicative simple replacement (\code{"multRepl"}).}
-  \item{delta}{
-If \code{ini.cov="multRepl"}, delta parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) expressed in proportions (default = 0.65).
+  \item{frac}{
+If \code{ini.cov="multRepl"}, parameter for initial multiplicative simple replacement of left-censored data (see \code{\link{multRepl}}) (default = 0.65).
 }
   \item{tolerance}{Convergence criterion for the EM algorithm (default = 0.0001).}
   \item{max.iter}{
@@ -41,6 +44,10 @@ If \code{rob=TRUE}, maximum number of iterations for the embedded robust regress
 Suppress printed feedback (\code{suppress.print = FALSE}, default).
 }
   \item{closure}{Closure value used to add a residual part if needed when \code{ini.cov="multRepl"} is used (see \code{?multRepl}).}
+  \item{z.warning}{
+Print a warning message if the proportion of zeros/unobserved values in any column or row exceeds a given threshold (default \code{z.warning=0.8}).
+}
+  \item{delta}{This argument has been deprecated and replaced by \code{frac} (see package's NEWS for details).}
 }
 
 
@@ -57,7 +64,7 @@ Note that conditional imputation based on log-ratio coordinates cannot be conduc
 
 \emph{Missing data imputation}
 
-This function can be employed to impute missing data with their conditional expectation using the EM algorithm under regular conditions by setting \code{imp.missing = TRUE}. Either maximum-likelihood or robust estimation can be used through the \code{rob} argument. For this case, the argument \code{label} indicates the unique label for missing values. The algorithm can be initiated using either \code{"complete.obs"} or \code{"multRepl"} (for missing data) as specified by the \code{ini.cov} argument. The argument \code{dl} is ignored as it is meaningless here.
+When \code{imp.missing = TRUE}, unobserved values are treated as general missing data and imputed by their conditional expectation using the EM algorithm. Either maximum-likelihood or robust estimation can be used through the \code{rob} argument. For this case, the argument \code{label} indicates the unique label for missing values. The algorithm can be initiated using either \code{"complete.obs"} or \code{"multRepl"} (for missing data) as specified by the \code{ini.cov} argument. The argument \code{dl} is ignored.
 }
 \value{
 A \code{\link{data.frame}} object containing the imputed compositional data set in the same scale as the original. The number of iterations required for convergence is also printed (this can be suppressed by setting \code{suppress.print=TRUE}).
@@ -69,7 +76,7 @@ Palarea-Albaladejo J, Martin-Fernandez JA, Gomez-Garcia J. A parametric approach
 
 Palarea-Albaladejo J, Martin-Fernandez JA. A modified EM alr-algorithm for replacing rounded zeros in compositional data sets. Computers & Geosciences 2008; 34(8): 902-917.
 
-Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. DOI: \url{http://dx.doi.org/10.1016/j.aca.2012.12.029}.
+Palarea-Albaladejo J, Martin-Fernandez JA. Values below detection limit in compositional chemical data. Analytica Chimica Acta 2013; 764: 32-43. \doi{https://doi.org/10.1016/j.aca.2012.12.029}.
 
 Palarea-Albaladejo J. and Martin-Fernandez JA. zCompositions -- R package for multivariate imputation of
 left-censored data under a compositional approach. Chemometrics and Intelligence Laboratory Systems 2015; 143: 85-96.
@@ -78,7 +85,7 @@ left-censored data under a compositional approach. Chemometrics and Intelligence
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{zPatterns}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
+\code{\link{zPatterns}}, \code{\link{lrSVD}}, \code{\link{lrDA}}, \code{\link{multRepl}}, \code{\link{multLN}}, \code{\link{multKM}}, \code{\link{cmultRepl}}
 }
 \examples{
 # Data set closed to 100 (percentages, common dl = 1%)
@@ -128,7 +135,7 @@ dl2b <- matrix(rep(1,46),ncol=1)\%*\%c(1,0.5,0,0,0,0.75,0.3,1,0,0,600,8)
 mdl <- rbind(dl2a,dl2b)
 LPdata2_roblrEM <- lrEM(LPdata2,label=0,dl=mdl,rob=TRUE,tolerance=0.005)
 
-# Treating zeros as missing data for illustration purposes only
+# Treating zeros as general missing data for illustration purposes only
 LPdata2_miss <- lrEM(LPdata2,label=0,imp.missing=TRUE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

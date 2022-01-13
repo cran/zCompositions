@@ -1,11 +1,11 @@
-lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "multRepl"), delta = 0.65,
+lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "multRepl"), frac = 0.65,
                      tolerance = 0.0001, max.iter = 50,
-                     rlm.maxit=150, suppress.print = FALSE, closure=NULL){
+                     rlm.maxit=150, suppress.print = FALSE, closure=NULL, z.warning=0.8, delta=NULL){
   
   if (any(X<0, na.rm=T)) stop("X contains negative values")
-  if (is.character(dl)) stop("dl must be a numeric vector or matrix")
+  if (is.character(dl) || is.null(dl)) stop("dl must be a numeric vector or matrix")
   if (is.vector(dl)) dl <- matrix(dl,nrow=1)
-
+  dl <- as.matrix(dl) # Avoids problems when dl might be multiple classes
   if ((is.vector(X)) | (nrow(X)==1)) stop("X must be a data matrix")
 
   if (ncol(dl)!=ncol(X)) stop("The number of columns in X and dl do not agree")
@@ -14,6 +14,11 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
   if (any(is.na(X))==FALSE) stop("No missing data were found in the data set")
   if (any(X==0, na.rm=T)==FALSE) stop("No zeros were found in the data set")
 
+  if (!missing("delta")){
+    warning("The delta argument is deprecated, use frac instead: frac has been set equal to delta.")
+    frac <- delta
+  }
+  
   ini.cov <- match.arg(ini.cov)
   
   gm <- function(x, na.rm=TRUE){
@@ -26,6 +31,29 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
   nn <- nrow(X); D <- ncol(X)
   X <- as.data.frame(apply(X,2,as.numeric),stringsAsFactors=TRUE)
   c <- apply(X,1,sum,na.rm=TRUE)
+  
+  # Number of zeros or missing per column/row for warning
+  checkNumZerosCol <- apply(X,2,function(x) sum(is.na(x) | (x==0)))
+  if (any(checkNumZerosCol/nrow(X) == 1)) {
+    stop(paste("Column(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosCol/nrow(X) > z.warning)) {
+      warning(paste("Column(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                    (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
+  }
+  
+  checkNumZerosRow <- apply(X,1,function(x) sum(is.na(x) | (x==0)))
+  if (any(checkNumZerosRow/ncol(X) == 1)) {
+    stop(paste("Row(s) containing all zeros/unobserved values were found (check it out using zPatterns).",sep=""))
+  }
+  else{
+    if (any(checkNumZerosRow/ncol(X) > z.warning)) {
+      warning(paste("Row(s) containing more than ",z.warning*100,"% zeros/unobserved values were found (check it out using zPatterns).
+                  (You can use the z.warning argument to modify the warning threshold).",sep=""))
+    }
+  }
 
   if (nrow(dl)==1) dl <- matrix(rep(1,nn),ncol=1)%*%dl
 
@@ -39,7 +67,7 @@ lrEMplus <- function(X, dl = NULL, rob = FALSE, ini.cov = c("complete.obs", "mul
     for (i in 1:nn){
       if (any(X.old[i, ]==0,na.rm=T)){
         z <- which(X.old[i, ]==0)
-        X.old[i,z] <- delta*dl[i,z]
+        X.old[i,z] <- frac*dl[i,z]
       }
     }
     # Initial lrEM imputation of missing data
